@@ -112,10 +112,10 @@ public class ReceiveCoinsActivity extends Activity {
       ((TextView) findViewById(R.id.tvAmount)).setHint(getResources().getString(R.string.amount_hint_denomination,
             _mbwManager.getBitcoinDenomination().toString()));
 
-      shareByNfc();
+      //shareByNfc();
    }
 
-   protected void shareByNfc() {
+   /*protected void shareByNfc() {
       NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
       if (nfc!=null) {
          nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
@@ -127,7 +127,7 @@ public class ReceiveCoinsActivity extends Activity {
             }
          }, this);
       }
-   }
+   }*/
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {

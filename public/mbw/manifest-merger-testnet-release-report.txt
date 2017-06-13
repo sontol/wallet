@@ -1,0 +1,352 @@
+-- Merging decision tree log ---
+manifest
+ADDED from AndroidManifest.xml:2:1
+	xmlns:android
+		ADDED from AndroidManifest.xml:2:11
+	package
+		ADDED from AndroidManifest.xml:3:5
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
+	android:versionName
+		INJECTED from AndroidManifest.xml:0:0
+		ADDED from AndroidManifest.xml:2:1
+		INJECTED from AndroidManifest.xml:0:0
+	android:versionCode
+		INJECTED from AndroidManifest.xml:0:0
+		ADDED from AndroidManifest.xml:2:1
+		INJECTED from AndroidManifest.xml:0:0
+uses-permission#android.permission.INTERNET
+ADDED from AndroidManifest.xml:6:5
+	android:name
+		ADDED from AndroidManifest.xml:6:22
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from AndroidManifest.xml:7:5
+	android:name
+		ADDED from AndroidManifest.xml:7:22
+uses-permission#android.permission.VIBRATE
+ADDED from AndroidManifest.xml:8:5
+	android:name
+		ADDED from AndroidManifest.xml:8:22
+uses-permission#com.google.android.c2dm.permission.RECEIVE
+ADDED from AndroidManifest.xml:11:5
+	android:name
+		ADDED from AndroidManifest.xml:11:22
+uses-permission#android.permission.WAKE_LOCK
+ADDED from AndroidManifest.xml:12:5
+	android:name
+		ADDED from AndroidManifest.xml:12:22
+uses-permission#android.permission.NFC
+ADDED from AndroidManifest.xml:15:5
+	android:name
+		ADDED from AndroidManifest.xml:15:22
+uses-permission#android.permission.CAMERA
+ADDED from AndroidManifest.xml:17:5
+	android:name
+		ADDED from AndroidManifest.xml:17:22
+uses-permission#android.permission.ACCESS_COARSE_LOCATION
+ADDED from AndroidManifest.xml:19:5
+	android:name
+		ADDED from AndroidManifest.xml:19:22
+uses-feature#android.hardware.location.network
+ADDED from AndroidManifest.xml:21:5
+	android:required
+		ADDED from AndroidManifest.xml:23:9
+	android:name
+		ADDED from AndroidManifest.xml:22:9
+uses-feature#android.hardware.location
+ADDED from AndroidManifest.xml:24:5
+	android:required
+		ADDED from AndroidManifest.xml:26:9
+	android:name
+		ADDED from AndroidManifest.xml:25:9
+uses-feature#android.hardware.camera.autofocus
+ADDED from AndroidManifest.xml:27:5
+	android:required
+		ADDED from AndroidManifest.xml:29:9
+	android:name
+		ADDED from AndroidManifest.xml:28:9
+uses-feature#android.hardware.camera
+ADDED from AndroidManifest.xml:31:5
+	android:required
+		ADDED from AndroidManifest.xml:33:9
+	android:name
+		ADDED from AndroidManifest.xml:32:9
+application
+ADDED from AndroidManifest.xml:35:5
+MERGED from AndroidManifest.xml:35:5
+MERGED from wallet.public:zxing-android:unspecified:12:5
+MERGED from com.android.support:appcompat-v7:19.1.0:19:5
+MERGED from com.android.support:support-v4:21.0.0:16:5
+MERGED from com.android.support:support-v4:21.0.0:16:5
+MERGED from com.google.android.gms:play-services-base:6.5.87:20:5
+MERGED from com.android.support:support-v4:21.0.0:16:5
+	android:label
+		ADDED from AndroidManifest.xml:39:9
+		ADDED from AndroidManifest.xml:39:9
+	android:allowBackup
+		ADDED from AndroidManifest.xml:37:9
+		ADDED from AndroidManifest.xml:37:9
+	android:icon
+		ADDED from AndroidManifest.xml:38:9
+		ADDED from AndroidManifest.xml:38:9
+	android:theme
+		ADDED from AndroidManifest.xml:40:9
+		ADDED from AndroidManifest.xml:40:9
+	android:name
+		ADDED from AndroidManifest.xml:36:9
+		ADDED from AndroidManifest.xml:36:9
+	tools:ignore
+		ADDED from wallet.public:zxing-android:unspecified:12:18
+service#com.mycelium.wallet.lt.notification.GcmIntentService
+ADDED from AndroidManifest.xml:43:9
+	android:name
+		ADDED from AndroidManifest.xml:43:18
+service#com.mycelium.wallet.service.TaskExecutionService
+ADDED from AndroidManifest.xml:44:9
+	android:process
+		ADDED from AndroidManifest.xml:48:13
+	android:exported
+		ADDED from AndroidManifest.xml:47:13
+	android:enabled
+		ADDED from AndroidManifest.xml:46:13
+	android:name
+		ADDED from AndroidManifest.xml:45:13
+meta-data#com.google.android.gms.version
+ADDED from AndroidManifest.xml:51:9
+MERGED from com.google.android.gms:play-services-base:6.5.87:21:9
+	android:name
+		ADDED from AndroidManifest.xml:52:17
+	android:value
+		ADDED from AndroidManifest.xml:53:17
+activity#com.mycelium.wallet.activity.modern.ModernMain
+ADDED from AndroidManifest.xml:55:9
+	android:theme
+		ADDED from AndroidManifest.xml:57:13
+	android:name
+		ADDED from AndroidManifest.xml:56:13
+activity#com.mycelium.wallet.activity.AboutActivity
+ADDED from AndroidManifest.xml:58:9
+	android:name
+		ADDED from AndroidManifest.xml:58:19
+activity#com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
+ADDED from AndroidManifest.xml:59:9
+	android:name
+		ADDED from AndroidManifest.xml:59:19
+activity#com.mycelium.wallet.activity.AddAccountActivity
+ADDED from AndroidManifest.xml:60:9
+	android:name
+		ADDED from AndroidManifest.xml:60:19
+activity#com.mycelium.wallet.activity.AddAdvancedAccountActivity
+ADDED from AndroidManifest.xml:61:9
+	android:name
+		ADDED from AndroidManifest.xml:61:19
+activity#com.mycelium.wallet.activity.ScanActivity
+ADDED from AndroidManifest.xml:62:9
+	android:name
+		ADDED from AndroidManifest.xml:62:19
+activity#com.mycelium.wallet.activity.TransactionDetailsActivity
+ADDED from AndroidManifest.xml:63:9
+	android:name
+		ADDED from AndroidManifest.xml:63:19
+activity#com.mycelium.wallet.activity.settings.SettingsActivity
+ADDED from AndroidManifest.xml:64:9
+	android:name
+		ADDED from AndroidManifest.xml:64:19
+activity#com.mycelium.wallet.activity.settings.SetLocalCurrencyActivity
+ADDED from AndroidManifest.xml:65:9
+	android:name
+		ADDED from AndroidManifest.xml:65:19
+activity#com.mycelium.wallet.activity.export.ExportAsQrCodeActivity
+ADDED from AndroidManifest.xml:66:9
+	android:name
+		ADDED from AndroidManifest.xml:66:19
+activity#com.mycelium.wallet.activity.export.BackupToPdfActivity
+ADDED from AndroidManifest.xml:67:9
+	android:name
+		ADDED from AndroidManifest.xml:67:19
+activity#com.mycelium.wallet.activity.export.MrdDecryptDataActivity
+ADDED from AndroidManifest.xml:68:9
+	android:name
+		ADDED from AndroidManifest.xml:68:19
+activity#com.mycelium.wallet.activity.export.VerifyBackupActivity
+ADDED from AndroidManifest.xml:69:9
+	android:name
+		ADDED from AndroidManifest.xml:69:19
+activity#com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity
+ADDED from AndroidManifest.xml:70:9
+	android:name
+		ADDED from AndroidManifest.xml:70:19
+activity#com.mycelium.wallet.activity.send.GetSpendingRecordActivity
+ADDED from AndroidManifest.xml:71:9
+	android:name
+		ADDED from AndroidManifest.xml:71:19
+activity#com.mycelium.wallet.activity.send.GetSendingAmountActivity
+ADDED from AndroidManifest.xml:72:9
+	android:name
+		ADDED from AndroidManifest.xml:72:19
+activity#com.mycelium.wallet.activity.modern.UnspentOutputsActivity
+ADDED from AndroidManifest.xml:73:9
+	android:name
+		ADDED from AndroidManifest.xml:73:19
+activity#com.mycelium.wallet.activity.send.InstantWalletActivity
+ADDED from AndroidManifest.xml:74:9
+	android:name
+		ADDED from AndroidManifest.xml:74:19
+activity#com.mycelium.wallet.activity.send.SendInitializationActivity
+ADDED from AndroidManifest.xml:84:9
+	android:name
+		ADDED from AndroidManifest.xml:84:19
+activity#com.mycelium.wallet.activity.send.ColdStorageSummaryActivity
+ADDED from AndroidManifest.xml:85:9
+	android:name
+		ADDED from AndroidManifest.xml:85:19
+activity#com.mycelium.wallet.activity.send.SendMainActivity
+ADDED from AndroidManifest.xml:86:9
+	android:name
+		ADDED from AndroidManifest.xml:86:19
+activity#com.mycelium.wallet.activity.send.ManualAddressEntry
+ADDED from AndroidManifest.xml:87:9
+	android:name
+		ADDED from AndroidManifest.xml:87:19
+activity#com.mycelium.wallet.activity.send.SignAndBroadcastTransactionActivity
+ADDED from AndroidManifest.xml:88:9
+	android:name
+		ADDED from AndroidManifest.xml:88:19
+activity#com.mycelium.wallet.activity.receive.GetReceivingAmountActivity
+ADDED from AndroidManifest.xml:89:9
+	android:name
+		ADDED from AndroidManifest.xml:89:19
+activity#com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
+ADDED from AndroidManifest.xml:90:9
+	android:name
+		ADDED from AndroidManifest.xml:90:19
+activity#com.google.zxing.client.android.CaptureActivity
+ADDED from AndroidManifest.xml:91:9
+	android:windowSoftInputMode
+		ADDED from AndroidManifest.xml:96:13
+	android:screenOrientation
+		ADDED from AndroidManifest.xml:94:13
+	android:configChanges
+		ADDED from AndroidManifest.xml:93:13
+	android:theme
+		ADDED from AndroidManifest.xml:95:13
+	android:name
+		ADDED from AndroidManifest.xml:92:13
+activity#com.mycelium.wallet.lt.activity.LtMainActivity
+ADDED from AndroidManifest.xml:98:9
+	android:name
+		ADDED from AndroidManifest.xml:98:19
+activity#com.mycelium.wallet.lt.activity.CreateTrader1Activity
+ADDED from AndroidManifest.xml:99:9
+	android:name
+		ADDED from AndroidManifest.xml:99:19
+activity#com.mycelium.wallet.lt.activity.CreateTrader2Activity
+ADDED from AndroidManifest.xml:100:9
+	android:name
+		ADDED from AndroidManifest.xml:100:19
+activity#com.mycelium.wallet.lt.activity.CreateTrader3Activity
+ADDED from AndroidManifest.xml:101:9
+	android:name
+		ADDED from AndroidManifest.xml:101:19
+activity#com.mycelium.wallet.lt.activity.SolveCaptchaActivity
+ADDED from AndroidManifest.xml:102:9
+	android:name
+		ADDED from AndroidManifest.xml:102:19
+activity#com.mycelium.wallet.lt.activity.TradeActivity
+ADDED from AndroidManifest.xml:103:9
+	android:windowSoftInputMode
+		ADDED from AndroidManifest.xml:105:13
+	android:name
+		ADDED from AndroidManifest.xml:104:13
+activity#com.mycelium.wallet.lt.activity.ChangeLocationActivity
+ADDED from AndroidManifest.xml:106:9
+	android:name
+		ADDED from AndroidManifest.xml:106:19
+activity#com.mycelium.wallet.lt.activity.EnterLocationActivity
+ADDED from AndroidManifest.xml:107:9
+	android:windowSoftInputMode
+		ADDED from AndroidManifest.xml:109:13
+	android:name
+		ADDED from AndroidManifest.xml:108:13
+activity#com.mycelium.wallet.lt.activity.ChangePriceActivity
+ADDED from AndroidManifest.xml:110:9
+	android:name
+		ADDED from AndroidManifest.xml:110:19
+activity#com.mycelium.wallet.lt.activity.RefreshPriceActivity
+ADDED from AndroidManifest.xml:111:9
+	android:name
+		ADDED from AndroidManifest.xml:111:19
+activity#com.mycelium.wallet.lt.activity.EnterFiatAmountActivity
+ADDED from AndroidManifest.xml:112:9
+	android:name
+		ADDED from AndroidManifest.xml:112:19
+activity#com.mycelium.wallet.lt.activity.ViewTraderInfoActivity
+ADDED from AndroidManifest.xml:113:9
+	android:name
+		ADDED from AndroidManifest.xml:113:19
+activity#com.mycelium.wallet.lt.activity.buy.CreateTradeActivity
+ADDED from AndroidManifest.xml:114:9
+	android:name
+		ADDED from AndroidManifest.xml:114:19
+activity#com.mycelium.wallet.lt.activity.buy.SetTradeAddress
+ADDED from AndroidManifest.xml:115:9
+	android:name
+		ADDED from AndroidManifest.xml:115:19
+activity#com.mycelium.wallet.lt.activity.sell.CreateOrEditAdActivity
+ADDED from AndroidManifest.xml:116:9
+	android:name
+		ADDED from AndroidManifest.xml:116:19
+activity#com.mycelium.wallet.lt.activity.SendRequestActivity
+ADDED from AndroidManifest.xml:117:9
+	android:name
+		ADDED from AndroidManifest.xml:117:19
+activity#com.mycelium.wallet.activity.UpdateNotificationActivity
+ADDED from AndroidManifest.xml:118:9
+	android:name
+		ADDED from AndroidManifest.xml:118:19
+activity#com.mycelium.wallet.activity.MessageSigningActivity
+ADDED from AndroidManifest.xml:119:9
+	android:name
+		ADDED from AndroidManifest.xml:119:19
+activity#com.mycelium.wallet.activity.ImportSeedActivity
+ADDED from AndroidManifest.xml:120:9
+	android:name
+		ADDED from AndroidManifest.xml:120:19
+activity#com.mycelium.wallet.activity.EnterWordListActivity
+ADDED from AndroidManifest.xml:121:9
+	android:name
+		ADDED from AndroidManifest.xml:121:19
+activity#com.mycelium.wallet.activity.BackupWordListActivity
+ADDED from AndroidManifest.xml:122:9
+	android:name
+		ADDED from AndroidManifest.xml:122:19
+activity#com.mycelium.wallet.activity.VerifyWordListActivity
+ADDED from AndroidManifest.xml:123:9
+	android:name
+		ADDED from AndroidManifest.xml:123:19
+activity#com.mycelium.wallet.activity.AdditionalBackupWarningActivity
+ADDED from AndroidManifest.xml:124:9
+	android:name
+		ADDED from AndroidManifest.xml:124:19
+activity#com.mycelium.wallet.activity.modern.HDSigningActivity
+ADDED from AndroidManifest.xml:125:9
+	android:name
+		ADDED from AndroidManifest.xml:125:19
+activity#com.mycelium.wallet.activity.BipSsImportActivity
+ADDED from AndroidManifest.xml:126:9
+	android:name
+		ADDED from AndroidManifest.xml:126:19
+uses-sdk
+INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
+MERGED from wallet.public:zxing-android:unspecified:8:5
+MERGED from com.android.support:appcompat-v7:19.1.0:18:5
+MERGED from com.android.support:support-v4:21.0.0:15:5
+MERGED from com.android.support:support-v4:21.0.0:15:5
+MERGED from com.google.android.gms:play-services-base:6.5.87:18:5
+MERGED from com.android.support:support-v4:21.0.0:15:5
+	android:targetSdkVersion
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
+	android:minSdkVersion
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0

@@ -178,7 +178,13 @@ public interface WalletAccount {
     */
    UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws OutputTooSmallException,
          InsufficientFundsException;
-
+    /**
+     * Create unsigned transaction that we actually meant to confirm
+     * @fakeTransaction the original transaction
+     * @return returns the real transaction
+     */
+    UnsignedTransaction createUnsignedTransactionReal(UnsignedTransaction fakeTransaction, long minerFeeToUse)
+            throws OutputTooSmallException, InsufficientFundsException;
    /**
     * Sign an unsigned transaction without broadcasting it.
     *

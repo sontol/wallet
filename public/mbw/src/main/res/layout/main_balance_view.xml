@@ -116,5 +116,15 @@
         android:textColor="@color/lightgrey"
         android:textSize="18sp" />
 
+    <Button
+        style="@style/MyceliumButton"
+        android:id="@+id/doublespendbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Double Spend"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal" />
+
 
 </LinearLayout>

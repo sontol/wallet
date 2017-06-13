@@ -86,6 +86,7 @@ public class SendMainActivity extends Activity {
    private boolean _isColdStorage;
    private TransactionStatus _transactionStatus;
    private UnsignedTransaction _unsigned;
+   private UnsignedTransaction _unsigned_real;
    private AsyncTask _task;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
@@ -272,6 +273,7 @@ public class SendMainActivity extends Activity {
       try {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
          _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee);
+        _unsigned = _account.createUnsignedTransactionReal(_unsigned, _mbwManager.getMinerFee().kbMinerFee);
          return TransactionStatus.OK;
       } catch (InsufficientFundsException e) {
          Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();

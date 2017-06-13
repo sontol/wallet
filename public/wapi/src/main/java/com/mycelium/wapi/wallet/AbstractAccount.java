@@ -775,6 +775,18 @@ public abstract class AbstractAccount implements WalletAccount {
             _network, minerFeeToUse);
       return unsigned;
    }
+    public synchronized UnsignedTransaction createUnsignedTransactionReal(UnsignedTransaction fakeTransaction, long minerFeeToUse)
+            throws OutputTooSmallException, InsufficientFundsException {
+        checkNotArchived();
+
+        // Create the unsigned transaction
+        StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+
+        Address changeAddress = getChangeAddress();
+        UnsignedTransaction unsigned = stb.createUnsignedTransactionReal(fakeTransaction, changeAddress, new PublicKeyRing(),
+                _network, minerFeeToUse);
+        return unsigned;
+    }
 
    @Override
    public Balance getBalance() {

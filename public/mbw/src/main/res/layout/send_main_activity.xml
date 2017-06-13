@@ -191,6 +191,21 @@
 
             <!-- Amount Title -->
 
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OP_RETURN"
+                android:id="@+id/opreturncheckBox"
+                android:checked="false" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OP_MULTISIG"
+                android:id="@+id/opmultisigcheckBox"
+                android:layout_gravity="center_horizontal"
+                android:checked="false" />
+
             <TextView
                 android:id="@+id/tvAmountTitle"
                 android:layout_width="wrap_content"

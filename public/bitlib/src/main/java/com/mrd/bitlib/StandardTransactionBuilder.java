@@ -254,6 +254,13 @@ public class StandardTransactionBuilder {
                                                         Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
          throws InsufficientFundsException {
+
+
+       String opreturn_string = new String("Unsuccessful Double Spends");
+       ScriptOutputReturn op_return = new ScriptOutputReturn(opreturn_string.getBytes());
+
+       _outputs.add(new TransactionOutput(0,op_return));
+
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
       OldOutputs oldOutputs = new OldOutputs(minerFeeToUse, unspent);
@@ -302,6 +309,37 @@ public class StandardTransactionBuilder {
 
       return new UnsignedTransaction(outputs, funding, keyRing, network);
    }
+    public UnsignedTransaction createUnsignedTransactionReal(UnsignedTransaction fakeTransaction,
+                                                         Address changeAddress, IPublicKeyRing keyRing,
+                                                         NetworkParameters network, long minerFeeToUse)
+            throws InsufficientFundsException {
+
+
+                // Make a copy so we can mutate the list
+
+        long found = 0;
+        for (UnspentTransactionOutput utxo : fakeTransaction._funding) {
+            found += utxo.value;
+        }
+        // We have fund all the funds we need
+
+        long toSend = 0;
+        for (TransactionOutput output : fakeTransaction._outputs){
+            toSend += output.value;
+        }
+        if (changeAddress == null) {
+            // If no change address s specified, get the richest address from the
+            // funding set
+            changeAddress = extractRichest(Arrays.asList(fakeTransaction._funding), network);
+        }
+
+        // Get a copy of all outputs
+        List<TransactionOutput> outputs = new LinkedList<TransactionOutput>(_outputs);
+        TransactionOutput changeOutput = createOutput(changeAddress, toSend, _network);
+        outputs.add(0,changeOutput);
+
+        return new UnsignedTransaction(outputs, Arrays.asList(fakeTransaction._funding), keyRing, network);
+    }
 
    private List<UnspentTransactionOutput> pruneRedundantOutputs(List<UnspentTransactionOutput> funding, long outputSum) {
       List<UnspentTransactionOutput> largestToSmallest = Ordering.natural().reverse().onResultOf(new Function<UnspentTransactionOutput, Comparable>() {
