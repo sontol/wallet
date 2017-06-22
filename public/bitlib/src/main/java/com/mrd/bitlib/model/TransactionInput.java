@@ -79,7 +79,7 @@ public class TransactionInput implements Serializable {
    }
 
    public TransactionInput(OutPoint outPoint, ScriptInput script) {
-      this(outPoint, script, NO_SEQUENCE);
+      this(outPoint, script, NO_SEQUENCE-1);
    }
 
    public ScriptInput getScript() {

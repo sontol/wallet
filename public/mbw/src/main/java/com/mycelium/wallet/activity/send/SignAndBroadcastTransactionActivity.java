@@ -35,7 +35,9 @@
 package com.mycelium.wallet.activity.send;
 
 import android.app.Activity;
+import android.content.ClipboardManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -66,6 +68,7 @@ public class SignAndBroadcastTransactionActivity extends Activity {
    private AsyncTask<Void, Integer, Transaction> _signingTask;
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> _broadcastingTask;
    private WalletAccount.BroadcastResult _broadcastResult;
+   int _nLocktime;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, String transactionLabel) {
       Intent intent = new Intent(currentActivity, SignAndBroadcastTransactionActivity.class);
@@ -76,6 +79,16 @@ public class SignAndBroadcastTransactionActivity extends Activity {
       intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
+    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, StandardTransactionBuilder.UnsignedTransaction unsigned, String transactionLabel, int nLocktime) {
+        Intent intent = new Intent(currentActivity, SignAndBroadcastTransactionActivity.class);
+        intent.putExtra("account", account);
+        intent.putExtra("isColdStorage", isColdStorage);
+        intent.putExtra("unsigned", unsigned);
+        intent.putExtra("transactionLabel", transactionLabel);
+        intent.putExtra("nLocktime",nLocktime);
+        intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+        currentActivity.startActivity(intent);
+    }
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +101,7 @@ public class SignAndBroadcastTransactionActivity extends Activity {
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
       _unsigned = Preconditions.checkNotNull((StandardTransactionBuilder.UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
+       _nLocktime=getIntent().getIntExtra("nLocktime",0);
 
       //May be null
       _transactionLabel = getIntent().getStringExtra("transactionLabel");
@@ -140,7 +154,7 @@ public class SignAndBroadcastTransactionActivity extends Activity {
          @Override
          protected Transaction doInBackground(Void... args) {
             try {
-               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource());
+               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher(), new AndroidRandomSource(),_nLocktime);
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);
             }

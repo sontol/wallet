@@ -618,6 +618,21 @@ public abstract class AbstractAccount implements WalletAccount {
       return transaction;
    }
 
+    public Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource, int nLocktime)
+            throws InvalidKeyCipher {
+        checkNotArchived();
+        if (!isValidEncryptionKey(cipher)) {
+            throw new InvalidKeyCipher();
+        }
+        // Make all signatures, this is the CPU intensive part
+        List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(unsigned.getSignatureInfo(),
+                new PrivateKeyRing(cipher), randomSource);
+
+        // Apply signatures and finalize transaction
+        Transaction transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures, nLocktime);
+        return transaction;
+    }
+
    public synchronized void queueTransaction(Transaction transaction) {
       // Store transaction in outgoing buffer, so we can broadcast it
       // later
@@ -775,16 +790,22 @@ public abstract class AbstractAccount implements WalletAccount {
             _network, minerFeeToUse);
       return unsigned;
    }
-    public synchronized UnsignedTransaction createUnsignedTransactionReal(UnsignedTransaction fakeTransaction, long minerFeeToUse)
+
+    public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse, int nLocktime)
             throws OutputTooSmallException, InsufficientFundsException {
         checkNotArchived();
 
+        // Determine the list of spendable outputs
+        Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+
         // Create the unsigned transaction
         StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
-
+        for (Receiver receiver : receivers) {
+            stb.addOutput(receiver.address, receiver.amount);
+        }
         Address changeAddress = getChangeAddress();
-        UnsignedTransaction unsigned = stb.createUnsignedTransactionReal(fakeTransaction, changeAddress, new PublicKeyRing(),
-                _network, minerFeeToUse);
+        UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
+                _network, minerFeeToUse,nLocktime);
         return unsigned;
     }
 

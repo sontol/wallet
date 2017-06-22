@@ -178,13 +178,28 @@ public interface WalletAccount {
     */
    UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws OutputTooSmallException,
          InsufficientFundsException;
+
     /**
-     * Create unsigned transaction that we actually meant to confirm
-     * @fakeTransaction the original transaction
-     * @return returns the real transaction
+     * Create a new unsigned transaction sending funds to one or more addresses.
+     * <p/>
+     * The unsigned transaction must be signed and queued before it will affect
+     * the transaction history.
+     * <p/>
+     * If you call this method twice without signing and queuing the unsigned
+     * transaction you are likely to create another unsigned transaction that
+     * double spends the first one. In other words, if you call this method and
+     * do not sign and queue the unspent transaction, then you should discard the
+     * unsigned transaction.
+     *
+     * @param receivers the receiving address, amount to send, and nLocktime of the tx
+     * @return an unsigned transaction.
+     * @throws OutputTooSmallException    if one of the outputs were too small
+     * @throws InsufficientFundsException if not enough funds were present to create the unsigned
+     *                                    transaction
      */
-    UnsignedTransaction createUnsignedTransactionReal(UnsignedTransaction fakeTransaction, long minerFeeToUse)
-            throws OutputTooSmallException, InsufficientFundsException;
+
+    UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse, int nLocktime) throws OutputTooSmallException,
+            InsufficientFundsException;
    /**
     * Sign an unsigned transaction without broadcasting it.
     *
@@ -196,6 +211,18 @@ public interface WalletAccount {
     */
    Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource)
          throws InvalidKeyCipher;
+
+    /**
+     * Sign an unsigned transaction without broadcasting it.
+     *
+     * @param unsigned     an unsigned transaction
+     * @param cipher       the key cipher to use for decrypting the private key
+     * @param randomSource a random source
+     * @return the signed transaction.
+     * @throws InvalidKeyCipher
+     */
+    Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource, int nLocktime)
+            throws InvalidKeyCipher;
 
    /**
     * Broadcast a transaction

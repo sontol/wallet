@@ -135,6 +135,54 @@ public class StandardTransactionBuilder {
 
          }
       }
+       private UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
+                                   IPublicKeyRing keyRing, NetworkParameters network, int nLocktime) {
+           _network = network;
+           _outputs = outputs.toArray(new TransactionOutput[]{});
+           _funding = funding.toArray(new UnspentTransactionOutput[]{});
+           _signingRequests = new SigningRequest[_funding.length];
+
+           // Create empty input scripts pointing at the right out points
+           TransactionInput[] inputs = new TransactionInput[_funding.length];
+           for (int i = 0; i < _funding.length; i++) {
+               inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
+           }
+
+           // Create transaction with valid outputs and empty inputs
+           Transaction transaction = new Transaction(1, inputs, _outputs, nLocktime);
+
+           for (int i = 0; i < _funding.length; i++) {
+               UnspentTransactionOutput f = _funding[i];
+
+               // Make sure that we only work on standard output scripts
+               if (!(f.script instanceof ScriptOutputStandard)) {
+                   throw new RuntimeException("Unsupported script");
+               }
+               // Find the address of the funding
+               byte[] addressBytes = ((ScriptOutputStandard) f.script).getAddressBytes();
+               Address address = Address.fromStandardBytes(addressBytes, _network);
+
+               // Find the key to sign with
+               PublicKey publicKey = keyRing.findPublicKeyByAddress(address);
+               if (publicKey == null) {
+                   // This should not happen as we only work on outputs that we have
+                   // keys for
+                   throw new RuntimeException("Public key not found");
+               }
+
+               // Set the input script to the funding output script
+               inputs[i].script = ScriptInput.fromOutputScript(_funding[i].script);
+
+               // Calculate the transaction hash that has to be signed
+               Sha256Hash hash = hashTransaction(transaction);
+
+               // Set the input to the empty script again
+               inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
+
+               _signingRequests[i] = new SigningRequest(publicKey, hash);
+
+           }
+       }
 
       public SigningRequest[] getSignatureInfo() {
          return _signingRequests;
@@ -256,11 +304,6 @@ public class StandardTransactionBuilder {
          throws InsufficientFundsException {
 
 
-       String opreturn_string = new String("Unsuccessful Double Spends");
-       ScriptOutputReturn op_return = new ScriptOutputReturn(opreturn_string.getBytes());
-
-       _outputs.add(new TransactionOutput(0,op_return));
-
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
       OldOutputs oldOutputs = new OldOutputs(minerFeeToUse, unspent);
@@ -309,37 +352,61 @@ public class StandardTransactionBuilder {
 
       return new UnsignedTransaction(outputs, funding, keyRing, network);
    }
-    public UnsignedTransaction createUnsignedTransactionReal(UnsignedTransaction fakeTransaction,
+    public UnsignedTransaction createUnsignedTransaction(Collection<UnspentTransactionOutput> inventory,
                                                          Address changeAddress, IPublicKeyRing keyRing,
-                                                         NetworkParameters network, long minerFeeToUse)
+                                                         NetworkParameters network, long minerFeeToUse, int nLocktime)
             throws InsufficientFundsException {
 
 
-                // Make a copy so we can mutate the list
+        // Make a copy so we can mutate the list
+        List<UnspentTransactionOutput> unspent = new LinkedList<UnspentTransactionOutput>(inventory);
+        OldOutputs oldOutputs = new OldOutputs(minerFeeToUse, unspent);
+        long fee = oldOutputs.getFee();
+        long outputSum = oldOutputs.getOutputSum();
+        //todo extract coinselector interface with 2 implementations, oldest and pruning
+        List<UnspentTransactionOutput> funding = pruneRedundantOutputs(oldOutputs.getAllFunding(), fee + outputSum);
+        fee = estimateFee(funding.size(), _outputs.size() + 1, minerFeeToUse);
 
         long found = 0;
-        for (UnspentTransactionOutput utxo : fakeTransaction._funding) {
-            found += utxo.value;
+        for (UnspentTransactionOutput output : funding) {
+            found += output.value;
         }
         // We have fund all the funds we need
+        long toSend = fee + outputSum;
 
-        long toSend = 0;
-        for (TransactionOutput output : fakeTransaction._outputs){
-            toSend += output.value;
-        }
+
         if (changeAddress == null) {
             // If no change address s specified, get the richest address from the
             // funding set
-            changeAddress = extractRichest(Arrays.asList(fakeTransaction._funding), network);
+            changeAddress = extractRichest(funding, network);
         }
+
+        // We have our funding, calculate change
+        long change = found - toSend;
 
         // Get a copy of all outputs
         List<TransactionOutput> outputs = new LinkedList<TransactionOutput>(_outputs);
-        TransactionOutput changeOutput = createOutput(changeAddress, toSend, _network);
-        outputs.add(0,changeOutput);
 
-        return new UnsignedTransaction(outputs, Arrays.asList(fakeTransaction._funding), keyRing, network);
+        if (change > 0) {
+            // We have more funds than needed, add an output to our change address
+            if (change >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
+                // But only if the change is larger than the minimum output accepted
+                // by the network
+                TransactionOutput changeOutput = createOutput(changeAddress, change, _network);
+                // Select a random position for our change so it is harder to analyze our addresses in the block chain.
+                // It is OK to use the weak java Random class for this purpose.
+                int position = new Random().nextInt(outputs.size() + 1);
+                outputs.add(position, changeOutput);
+            } else {
+                // The change output would be smaller than what the network would
+                // accept. In this case we leave it be as a small increased miner
+                // fee.
+            }
+        }
+
+        return new UnsignedTransaction(outputs, funding, keyRing, network,nLocktime);
     }
+
 
    private List<UnspentTransactionOutput> pruneRedundantOutputs(List<UnspentTransactionOutput> funding, long outputSum) {
       List<UnspentTransactionOutput> largestToSmallest = Ordering.natural().reverse().onResultOf(new Function<UnspentTransactionOutput, Comparable>() {
@@ -412,6 +479,21 @@ public class StandardTransactionBuilder {
       Transaction transaction = new Transaction(1, inputs, unsigned._outputs, 0);
       return transaction;
    }
+
+    public static Transaction finalizeTransaction(UnsignedTransaction unsigned, List<byte[]> signatures, int nLocktime) {
+        // Create finalized transaction inputs
+        TransactionInput[] inputs = new TransactionInput[unsigned._funding.length];
+        for (int i = 0; i < unsigned._funding.length; i++) {
+            // Create script from signature and public key
+            ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
+                    unsigned._signingRequests[i].publicKey.getPublicKeyBytes());
+            inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script);
+        }
+
+        // Create transaction with valid outputs and empty inputs
+        Transaction transaction = new Transaction(1, inputs, unsigned._outputs, nLocktime);
+        return transaction;
+    }
 
    private UnspentTransactionOutput extractOldest(Collection<UnspentTransactionOutput> unspent) {
       // find the "oldest" output
