@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/">
+        android:id="@+id/linear">
 
         <!-- Title -->
 
@@ -190,6 +190,14 @@
             android:text="Copy from Clipboard"
             android:id="@+id/btClipboard2"
             android:layout_gravity="center_horizontal" />
+
+        <CheckBox
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:text="Cold Storage"
+            android:id="@+id/isColdStorage"
+            android:layout_gravity="right"
+            android:checked="false" />
 
         <Button
             android:layout_width="wrap_content"

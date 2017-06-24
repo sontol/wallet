@@ -620,6 +620,7 @@ public abstract class AbstractAccount implements WalletAccount {
 
     public Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher, RandomSource randomSource, int nLocktime)
             throws InvalidKeyCipher {
+        Transaction transaction;
         checkNotArchived();
         if (!isValidEncryptionKey(cipher)) {
             throw new InvalidKeyCipher();
@@ -629,7 +630,10 @@ public abstract class AbstractAccount implements WalletAccount {
                 new PrivateKeyRing(cipher), randomSource);
 
         // Apply signatures and finalize transaction
-        Transaction transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures, nLocktime);
+        if (nLocktime!=0)
+            transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures, nLocktime);
+        else
+            transaction = StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
         return transaction;
     }
 

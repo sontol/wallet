@@ -475,7 +475,7 @@ public class StandardTransactionBuilder {
          // Create script from signature and public key
          ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
                unsigned._signingRequests[i].publicKey.getPublicKeyBytes());
-         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script);
+         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script,-1);
       }
 
       // Create transaction with valid outputs and empty inputs

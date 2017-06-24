@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -62,8 +63,10 @@ import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.SignAndBroadcastTransactionActivity;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
+import com.mycelium.wallet.api.AsyncTask;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionStatus;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -79,8 +82,13 @@ public class TransactionDetailsActivity extends Activity {
    private MbwManager _mbwManager;
    private Address _receivingAddress;
    private WalletAccount _account;
+    private AsyncTask _task;
 
-    private TransactionStatus _transactionStatus;
+    private enum TxStatus {
+        MissingArguments, OutputTooSmall, InsufficientFunds, OK
+    }
+
+    private TxStatus _transactionStatus;
     private Transaction _transaction;
     private StandardTransactionBuilder.UnsignedTransaction _unsigned;
    private String _transactionInfoTemplate;
@@ -101,8 +109,9 @@ public class TransactionDetailsActivity extends Activity {
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
        _transaction = _mbwManager.getSelectedAccount().getTransaction(txid);
-       _account = _mbwManager.getSelectedAccount().getId();
 
+       // Send button
+       findViewById(R.id.btResend).setOnClickListener(sendClickListener);
 
        // Clipboard
        findViewById(R.id.btClipboard2).setOnClickListener(clipboardClickListener);
@@ -128,6 +137,48 @@ public class TransactionDetailsActivity extends Activity {
             }
         }
     };
+    private View.OnClickListener sendClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View arg0) {
+            CheckBox ColdStorageView = (CheckBox) findViewById(R.id.isColdStorage);
+            boolean isColdStorage = ColdStorageView.isChecked();
+            if (isColdStorage) {
+                // We do not ask for pin when the key is from cold storage
+                signAndSendTransaction();
+            } else {
+                _mbwManager.runPinProtectedFunction(TransactionDetailsActivity.this, pinProtectedSignAndSend);
+            }
+        }
+    };
+
+    final Runnable pinProtectedSignAndSend = new Runnable() {
+
+        @Override
+        public void run() {
+            signAndSendTransaction();
+        }
+    };
+
+    private void signAndSendTransaction() {
+        //findViewById(R.id.pbSend).setVisibility(View.VISIBLE);
+        findViewById(R.id.btResend).setEnabled(false);
+        findViewById(R.id.btManual2).setEnabled(false);
+        findViewById(R.id.btClipboard2).setEnabled(false);
+        findViewById(R.id.btScanQR2).setEnabled(false);
+        CheckBox ColdStorageView = (CheckBox) findViewById(R.id.isColdStorage);
+        boolean isColdStorage = ColdStorageView.isChecked();
+
+        SignAndBroadcastTransactionActivity.callMe(this, _account.getId(), isColdStorage, _unsigned, "");
+        finish();
+    }
+    private void cancelEverything() {
+        if (_task != null) {
+            _task.cancel();
+            _task = null;
+        }
+    }
+
     private List<UnspentTransactionOutput> UnspentTransactionOutputfromTransactionInputs(){
         UnspentTransactionOutput[] utxo = new UnspentTransactionOutput[_transaction.inputs.length];
         List<UnspentTransactionOutput> utxoList;
@@ -137,11 +188,15 @@ public class TransactionDetailsActivity extends Activity {
         utxoList= Arrays.asList(utxo);
         return utxoList;
     }
-    private TransactionStatus tryCreateUnsignedTransaction() {
+    private TxStatus tryCreateUnsignedTransaction() {
+
+        CheckBox ColdStorageView = (CheckBox) findViewById(R.id.isColdStorage);
+        boolean isColdStorage = ColdStorageView.isChecked();
+        _account = _mbwManager.getWalletManager(isColdStorage).getAccount(_mbwManager.getSelectedAccount().getId());
         _unsigned = null;
         Long _amountToSend;
         if ( _receivingAddress == null) {
-            return TransactionStatus.MissingArguments;
+            return TxStatus.MissingArguments;
         }
 
         // Create the unsigned transaction
@@ -149,14 +204,14 @@ public class TransactionDetailsActivity extends Activity {
             List<UnspentTransactionOutput> utxo = UnspentTransactionOutputfromTransactionInputs();
             _amountToSend = sum(_tx.outputs)- getFee(_tx)/10;
             WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
-            _unsigned = _account.createUnsignedTransaction(utxo,Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee);
-            return TransactionStatus.OK;
+            _unsigned = _account.createUnsignedTransaction(utxo,Arrays.asList(receiver), getFee(_tx)/10+getFee(_tx));
+            return TxStatus.OK;
         } catch (StandardTransactionBuilder.InsufficientFundsException e) {
             Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
-            return TransactionStatus.InsufficientFunds;
+            return TxStatus.InsufficientFunds;
         } catch (StandardTransactionBuilder.OutputTooSmallException e1) {
             Toast.makeText(this, getResources().getString(R.string.amount_too_small), Toast.LENGTH_LONG).show();
-            return TransactionStatus.OutputTooSmall;
+            return TxStatus.OutputTooSmall;
         }
     }
     private BitcoinUri getUriFromClipboard() {
@@ -182,6 +237,11 @@ public class TransactionDetailsActivity extends Activity {
         return null;
     }
 
+    @Override
+    protected void onDestroy() {
+        cancelEverything();
+        super.onDestroy();
+    }
 
 
    private void updateUi() {
