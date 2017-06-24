@@ -45,7 +45,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.EditText;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
@@ -87,8 +86,7 @@ public class SendMainActivity extends Activity {
    private boolean _isColdStorage;
    private TransactionStatus _transactionStatus;
    private UnsignedTransaction _unsigned;
-    private int _nLocktime;
-
+   private UnsignedTransaction _unsigned_real;
    private AsyncTask _task;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
@@ -273,9 +271,6 @@ public class SendMainActivity extends Activity {
 
       // Create the unsigned transaction
       try {
-          EditText blockNumber = (EditText) findViewById(R.id.blockNumber);
-          String nLocktime =  blockNumber.getText().toString();
-          _nLocktime = Integer.parseInt(nLocktime);
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
          _unsigned = _account.createUnsignedTransaction(Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee,_nLocktime);
          return TransactionStatus.OK;
@@ -489,7 +484,7 @@ public class SendMainActivity extends Activity {
       findViewById(R.id.btScan).setEnabled(false);
       findViewById(R.id.btEnterAmount).setEnabled(false);
 
-      SignAndBroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned, _transactionLabel,_nLocktime);
+      SignAndBroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned, _transactionLabel);
       finish();
    }
 

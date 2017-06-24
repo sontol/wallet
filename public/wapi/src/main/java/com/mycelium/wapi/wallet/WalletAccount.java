@@ -24,6 +24,7 @@ import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.model.TransactionDetails;
@@ -104,7 +105,12 @@ public interface WalletAccount {
     * @return the details of a transaction
     */
    TransactionDetails getTransactionDetails(Sha256Hash txid);
-
+    /**
+     * Get the Transaction out of txid
+     * @param txid the ID of the transaction
+     * @return the tx
+     */
+    Transaction getTransaction(Sha256Hash txid);
    /**
     * Is this account archived?
     * <p/>
@@ -178,6 +184,30 @@ public interface WalletAccount {
     */
    UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws OutputTooSmallException,
          InsufficientFundsException;
+
+    /**
+     * Create a new unsigned transaction sending funds to one or more addresses.
+     * <p/>
+     * The unsigned transaction must be signed and queued before it will affect
+     * the transaction history.
+     * <p/>
+     * If you call this method twice without signing and queuing the unsigned
+     * transaction you are likely to create another unsigned transaction that
+     * double spends the first one. In other words, if you call this method and
+     * do not sign and queue the unspent transaction, then you should discard the
+     * unsigned transaction.
+     *
+     * Doublespent variant
+     *
+     * @param receivers the receiving address, list of utxos that need to be spent, and amount to send
+     * @return an unsigned transaction.
+     * @throws OutputTooSmallException    if one of the outputs were too small
+     * @throws InsufficientFundsException if not enough funds were present to create the unsigned
+     *                                    transaction
+     */
+
+    UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> funding,List<Receiver> receivers , long minerFeeToUse) throws OutputTooSmallException,
+            InsufficientFundsException;;
 
     /**
      * Create a new unsigned transaction sending funds to one or more addresses.

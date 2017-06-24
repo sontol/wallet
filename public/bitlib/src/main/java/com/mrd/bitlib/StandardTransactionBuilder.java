@@ -29,6 +29,7 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -97,7 +98,7 @@ public class StandardTransactionBuilder {
          // Create empty input scripts pointing at the right out points
          TransactionInput[] inputs = new TransactionInput[_funding.length];
          for (int i = 0; i < _funding.length; i++) {
-            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
+            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY,-1);
          }
 
          // Create transaction with valid outputs and empty inputs
@@ -129,7 +130,7 @@ public class StandardTransactionBuilder {
             Sha256Hash hash = hashTransaction(transaction);
 
             // Set the input to the empty script again
-            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
+            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY,-1);
 
             _signingRequests[i] = new SigningRequest(publicKey, hash);
 
@@ -406,6 +407,8 @@ public class StandardTransactionBuilder {
 
         return new UnsignedTransaction(outputs, funding, keyRing, network,nLocktime);
     }
+
+
 
 
    private List<UnspentTransactionOutput> pruneRedundantOutputs(List<UnspentTransactionOutput> funding, long outputSum) {

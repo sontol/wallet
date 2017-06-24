@@ -772,6 +772,25 @@ public abstract class AbstractAccount implements WalletAccount {
 
    protected abstract PublicKey getPublicKeyForAddress(Address address);
 
+    @Override
+    public synchronized UnsignedTransaction createUnsignedTransaction(List<UnspentTransactionOutput> funding,List<Receiver> receivers , long minerFeeToUse)
+            throws OutputTooSmallException, InsufficientFundsException {
+        checkNotArchived();
+
+        // Determine the list of spendable outputs
+        //Collection<UnspentTransactionOutput> spendable = transform(getSpendableOutputs());
+
+        // Create the unsigned transaction
+        StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+        for (Receiver receiver : receivers) {
+            stb.addOutput(receiver.address, receiver.amount);
+        }
+        Address changeAddress = getChangeAddress();
+        UnsignedTransaction unsigned = stb.createUnsignedTransaction(funding, changeAddress, new PublicKeyRing(),
+                _network, minerFeeToUse);
+        return unsigned;
+    }
+
    @Override
    public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
          throws OutputTooSmallException, InsufficientFundsException {
@@ -790,7 +809,7 @@ public abstract class AbstractAccount implements WalletAccount {
             _network, minerFeeToUse);
       return unsigned;
    }
-
+    @Override
     public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse, int nLocktime)
             throws OutputTooSmallException, InsufficientFundsException {
         checkNotArchived();
@@ -805,7 +824,7 @@ public abstract class AbstractAccount implements WalletAccount {
         }
         Address changeAddress = getChangeAddress();
         UnsignedTransaction unsigned = stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
-                _network, minerFeeToUse,nLocktime);
+                _network, minerFeeToUse, nLocktime);
         return unsigned;
     }
 
@@ -1061,5 +1080,14 @@ public abstract class AbstractAccount implements WalletAccount {
 
       return new TransactionDetails(txid, tex.height, tex.time, inputs.toArray(new TransactionDetails.Item[]{}), outputs);
    }
+    @Override
+    public Transaction getTransaction(Sha256Hash txid) {
+        // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+        // accounts. That should be ok as we write to the DB in a sane order.
+
+        TransactionEx tex = _backing.getTransaction(txid);
+        Transaction tx = TransactionEx.toTransaction(tex);
+        return (tx);
+    }
 
 }

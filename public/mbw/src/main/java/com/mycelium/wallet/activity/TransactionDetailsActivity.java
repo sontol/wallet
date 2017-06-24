@@ -35,7 +35,9 @@
 package com.mycelium.wallet.activity;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
@@ -44,16 +46,28 @@ import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.model.*;
+
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionStatus;
+import com.mycelium.wapi.wallet.WalletAccount;
+
 
 public class TransactionDetailsActivity extends Activity {
 
@@ -63,6 +77,12 @@ public class TransactionDetailsActivity extends Activity {
    private TransactionDetails _tx;
    private int _white_color;
    private MbwManager _mbwManager;
+   private Address _receivingAddress;
+   private WalletAccount _account;
+
+    private TransactionStatus _transactionStatus;
+    private Transaction _transaction;
+    private StandardTransactionBuilder.UnsignedTransaction _unsigned;
    private String _transactionInfoTemplate;
 
    /**
@@ -80,9 +100,89 @@ public class TransactionDetailsActivity extends Activity {
 
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
+       _transaction = _mbwManager.getSelectedAccount().getTransaction(txid);
+       _account = _mbwManager.getSelectedAccount().getId();
+
+
+       // Clipboard
+       findViewById(R.id.btClipboard2).setOnClickListener(clipboardClickListener);
 
       updateUi();
    }
+
+    private View.OnClickListener clipboardClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View arg0) {
+            BitcoinUri uri = getUriFromClipboard();
+            if (uri != null) {
+                Toast.makeText(TransactionDetailsActivity.this, getResources().getString(R.string.using_address_from_clipboard),
+                        Toast.LENGTH_SHORT).show();
+                _receivingAddress = uri.address;
+                if (uri.amount != null) {
+                    //ignore amount
+                   // _amountToSend = uri.amount;
+                }
+                _transactionStatus = tryCreateUnsignedTransaction();
+                updateUi();
+            }
+        }
+    };
+    private List<UnspentTransactionOutput> UnspentTransactionOutputfromTransactionInputs(){
+        UnspentTransactionOutput[] utxo = new UnspentTransactionOutput[_transaction.inputs.length];
+        List<UnspentTransactionOutput> utxoList;
+
+        for (int i=0; i < _transaction.inputs.length;i++)
+            utxo[i]=new UnspentTransactionOutput(_transaction.inputs[i].outPoint, -1, _tx.inputs[i].value,new ScriptOutputStandard(_tx.inputs[i].address.getTypeSpecificBytes())) ;
+        utxoList= Arrays.asList(utxo);
+        return utxoList;
+    }
+    private TransactionStatus tryCreateUnsignedTransaction() {
+        _unsigned = null;
+        Long _amountToSend;
+        if ( _receivingAddress == null) {
+            return TransactionStatus.MissingArguments;
+        }
+
+        // Create the unsigned transaction
+        try {
+            List<UnspentTransactionOutput> utxo = UnspentTransactionOutputfromTransactionInputs();
+            _amountToSend = sum(_tx.outputs)- getFee(_tx)/10;
+            WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, _amountToSend);
+            _unsigned = _account.createUnsignedTransaction(utxo,Arrays.asList(receiver), _mbwManager.getMinerFee().kbMinerFee);
+            return TransactionStatus.OK;
+        } catch (StandardTransactionBuilder.InsufficientFundsException e) {
+            Toast.makeText(this, getResources().getString(R.string.insufficient_funds), Toast.LENGTH_LONG).show();
+            return TransactionStatus.InsufficientFunds;
+        } catch (StandardTransactionBuilder.OutputTooSmallException e1) {
+            Toast.makeText(this, getResources().getString(R.string.amount_too_small), Toast.LENGTH_LONG).show();
+            return TransactionStatus.OutputTooSmall;
+        }
+    }
+    private BitcoinUri getUriFromClipboard() {
+        String content = Utils.getClipboardString(TransactionDetailsActivity.this);
+        if (content.length() == 0) {
+            return null;
+        }
+        String string = content.trim();
+        if (string.matches("[a-zA-Z0-9]*")) {
+            // Raw format
+            Address address = Address.fromString(string, _mbwManager.getNetwork());
+            if (address == null) {
+                return null;
+            }
+            return new BitcoinUri(address, null, null);
+        } else {
+            Optional<BitcoinUri> b = BitcoinUri.parse(string, _mbwManager.getNetwork());
+            if (b.isPresent()) {
+                // On URI format
+                return b.get();
+            }
+        }
+        return null;
+    }
+
+
 
    private void updateUi() {
       // Set Hash
